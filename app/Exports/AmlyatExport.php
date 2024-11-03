@@ -12,15 +12,12 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Maatwebsite\Excel\Events\AfterSheet; // تأكد من استيراد AfterSheet
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Illuminate\Support\Collection;
 
-
-
-class ClinicExport implements FromCollection, WithHeadings, WithStyles, WithColumnFormatting, WithEvents
+class AmlyatExport implements FromCollection, WithStyles, WithEvents
 {
     protected $results;
 
-    public function __construct(Collection $results)
+    public function __construct($results)
     {
         $this->results = $results;
     }
@@ -29,29 +26,16 @@ class ClinicExport implements FromCollection, WithHeadings, WithStyles, WithColu
     {
         return $this->results->map(function ($item) {
             return [
-                'name' => $item->name,
+                'amlya' => $item->amlya,
                 'date' => $item->date,
-                'department' => $item->department,
-                'pleace' => $item->pleace,
-                'phone' => $item->phone,
             ];
         });
     }
 
-    public function headings(): array
-    {
-        return [
-            'الاسم',
-            'التاريخ',
-            'القسم',
-            'المكان',
-            'الهاتف',
-        ];
-    }
-
     public function styles(Worksheet $sheet)
     {
-        $borderStyle = [
+        // إعدادات الحدود
+        $styleArray = [
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -60,19 +44,10 @@ class ClinicExport implements FromCollection, WithHeadings, WithStyles, WithColu
             ],
         ];
 
-        // تنسيق الهيدر في الصف الثاني
-        $sheet->getStyle('A2:E2')->applyFromArray([
-            'fill' => [
-                'fillType' => 'solid',
-                'startColor' => ['argb' => 'FFFFC107'], // لون الهيدر
-            ],
-            'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF'], 'size' => 14],
-            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
-        ]);
-
         // تلوين الصفوف بالتناوب وإضافة الحدود
-        for ($i = 3; $i <= 1000; $i++) {
-            $sheet->getStyle("A$i:E$i")->applyFromArray([
+        for ($i = 3; $i <= 1000; $i++) { // نبدأ من الصف الثالث
+            // تلوين الصفوف بالتناوب
+            $sheet->getStyle("A$i:B$i")->applyFromArray([
                 'fill' => [
                     'fillType' => 'solid',
                     'startColor' => [
@@ -81,14 +56,15 @@ class ClinicExport implements FromCollection, WithHeadings, WithStyles, WithColu
                 ],
             ]);
 
-            $sheet->getStyle("A$i:E$i")->applyFromArray($borderStyle);
+            // إضافة الحدود
+            $sheet->getStyle("A$i:B$i")->applyFromArray($styleArray);
         }
 
         // إضافة الحدود لجميع الخلايا
-        $sheet->getStyle('A1:E1000')->applyFromArray($borderStyle);
+        $sheet->getStyle('A1:B1000')->applyFromArray($styleArray);
 
         // تنسيق بيانات الصفوف
-        $sheet->getStyle('A3:E1000')->applyFromArray([
+        $sheet->getStyle('A3:B1000')->applyFromArray([
             'font' => ['size' => 11],
             'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
         ]);
@@ -107,9 +83,9 @@ class ClinicExport implements FromCollection, WithHeadings, WithStyles, WithColu
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet;
 
-                // إضافة اسم الجهة في الصف الأول
-                $sheet->mergeCells('A1:E1'); // دمج الخلايا من A1 إلى E1
-                $sheet->setCellValue('A1', 'الجهة:  العيادات'); // تعيين اسم الجهة
+                // إضافة اسم الجهة في السطر الأول
+                $sheet->mergeCells('A1:B1'); // دمج الخلايا
+                $sheet->setCellValue('A1', 'الجهة: العمليات '); // إضافة اسم الجهة
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 16],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -117,6 +93,20 @@ class ClinicExport implements FromCollection, WithHeadings, WithStyles, WithColu
                         'fillType' => 'solid',
                         'startColor' => ['argb' => 'FFCCCCCC'], // لون الخلفية للخلية الأولى
                     ],
+                ]);
+
+                // إضافة أسماء الأعمدة في السطر الثاني
+                $sheet->getCell('A2')->setValue('العمليات'); // عنوان العمود الأول
+                $sheet->getCell('B2')->setValue('التاريخ'); // عنوان العمود الثاني
+
+                // تنسيق عناوين الأعمدة
+                $sheet->getStyle('A2:B2')->applyFromArray([
+                    'font' => ['bold' => true],
+                    'fill' => [
+                        'fillType' => 'solid',
+                        'startColor' => ['argb' => 'CCCCFF'], // لون الهيدر
+                    ],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
             },
         ];

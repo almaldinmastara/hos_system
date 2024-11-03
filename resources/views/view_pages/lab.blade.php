@@ -1,49 +1,78 @@
 <!DOCTYPE html>
 <html lang="ar">
+
 <head>
 @include('view_pages.css')
 </head>
 <body>
     <div class="container mt-5">
+        @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
         <div class="row justify-content-center">
+
             <!-- العمود الذي يحتوي على الرقم -->
             <div class="col-md-2">
                 <div class="number-box">
-                    العدد
+                    @if(isset($results) && $results->count() > 0)
+                    <p> النتائج: {{ $results->count() }}</p>
+                @else
+                    <p>لا توجد بيانات</p>
+                @endif
+
                 </div>
             </div>
 
-            <!-- العمود الذي يحتوي على تاريخ البداية، تاريخ النهاية، و البحث -->
-            <div class="col-md-10">
+           <!-- العمود الذي يحتوي على تاريخ البداية، تاريخ النهاية، و البحث -->
+           <div class="col-md-10">
+            <form action="{{ route('search.route') }}" method="GET">
                 <div class="row mb-3">
+                    <!-- حقل البحث -->
                     <div class="col-md-4">
                         <div class="rounded-box">
                             <label for="search">ابحث هنا</label>
-                            <input type="text" id="search" class="form-control search-box">
+                            <input type="text" name="search" id="search" class="form-control search-box" placeholder="ادخل ما تريد البحث عنه">
                         </div>
                     </div>
-
+               <!-- تاريخ النهاية -->
+               <div class="col-md-4">
+                <div class="rounded-box">
+                    <label for="end_date">تاريخ النهاية</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" required>
+                </div>
+            </div>
+                    <!-- تاريخ البداية -->
                     <div class="col-md-4">
                         <div class="rounded-box">
                             <label for="start_date">تاريخ البداية</label>
-                            <input type="date" id="start_date" class="form-control">
+                            <input type="date" name="start_date" id="start_date" class="form-control" required>
                         </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="rounded-box">
-                            <label for="end_date">تاريخ النهاية</label>
-                            <input type="date" id="end_date" class="form-control">
-                        </div>
-                    </div>
+
                 </div>
 
+                <!-- أزرار البحث والتنزيل -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary">بحث</button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ route('download.route', ['start_date' => request()->start_date, 'end_date' => request()->end_date, 'search' => request()->search]) }}" class="btn btn-success">تنزيل</a>
+                    </div>
+                </div>
+            </form>
         </div>
 
-        <!-- منطقة عرض البيانات -->
         <div class="row">
             <div class="col-md-12">
-
                 <div class="row">
                     <div class="col-md-12">
                         <div class="results-box">
@@ -51,37 +80,35 @@
                             <table class="table table-bordered table-striped mt-3">
                                 <thead>
                                     <tr>
-                                        <th>رقم</th>
-                                        <th>اسم الحالة</th>
-                                        <th>تاريخ البداية</th>
-                                        <th>تاريخ النهاية</th>
-                                        <th>ملاحظات</th>
+                                        <th>الاسم</th>
+                                        <th>القسم</th>
+                                        <th>التاريخ</th>
+                                        <th>التحليل</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>حالة 1</td>
-                                        <td>2024-10-01</td>
-                                        <td>2024-10-05</td>
-                                        <td>ملاحظة 1</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>حالة 2</td>
-                                        <td>2024-10-02</td>
-                                        <td>2024-10-06</td>
-                                        <td>ملاحظة 2</td>
-                                    </tr>
-                                    <!-- يمكنك إضافة المزيد من الصفوف هنا -->
+                                    @if(isset($results) && $results->count() > 0)
+                                        @foreach($results as $result)
+                                            <tr>
+                                                <td>{{ $result->name }}</td>
+                                                <td>{{ $result->department }}</td>
+                                                <td>{{ $result->date }}</td>
+                                                <td>{{ $result->analysis }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="4">لا توجد بيانات لعرضها.</td>
+                                        </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
+
     </div>
 
     <!-- ربط Bootstrap JS -->

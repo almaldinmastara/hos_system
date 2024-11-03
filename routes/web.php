@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\exporcontroller;
-
+use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\AywaController;
+use App\Http\Controllers\AmlyatController;
 
 
 Route::get('/', [exporcontroller::class, 'home']);
@@ -18,3 +20,20 @@ Route::get('/clinc-excel', [exporcontroller::class, 'clinicExport'])->name('clin
 Route::post('/', [exporcontroller::class, 'import'])->name('import');
 
 
+
+
+Route::get('/search', [exporcontroller::class, 'search'])->name('search.route');
+Route::get('/download', [exporcontroller::class, 'download'])->name('download.route');
+
+
+
+Route::get('/clinicsearch', [ClinicController::class, 'clinicsearch'])->name('clinicsearch');
+Route::get('/clinicdownload', [ClinicController::class, 'clinicdownload'])->name('clinicdownload');
+
+
+Route::get('/AywaSearch', [AywaController::class, 'AywaSearch'])->name('AywaSearch');
+Route::get('/AywaDownload', [AywaController::class, 'AywaDownload'])->name('AywaDownload');
+
+
+Route::get('/amlyat/search', [AmlyatController::class, 'amlyatSearch'])->name('amlyatSearch');
+Route::get('/amlyatDownload', [AmlyatController::class, 'amlyatDownload'])->name('amlyatDownload');

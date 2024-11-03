@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('aywa', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->date('date');
-            $table->string('department');
-            $table->string('phone');
-            $table->timestamps();
+        Schema::table('amlyat', function (Blueprint $table) {
+            //
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('aywa');
+        Schema::table('amlyat', function (Blueprint $table) {
+            //
+        });
     }
 };
